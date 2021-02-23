@@ -1,0 +1,30 @@
+
+Kwota podana cyfrowo:
+1.233,00 z³
+Kwota s³ownie:
+jeden tysi¹c dwieœcie trzydzieœci trzy z³ote zero groszy 
+
+Kwota podana cyfrowo:
+999.999.999.999,99 z³
+Kwota s³ownie:
+dziewiêæset dziewiêædziesi¹t dziewiêæ miliardów dziewiêæset dziewiêædziesi¹t dziewiêæ milionów dziewiêæset dziewiêædziesi¹t dziewiêæ tysiêcy dziewiêæset dziewiêædziesi¹t dziewiêæ z³otych dziewiêædziesi¹t dziewiêæ groszy 
+
+Kwota podana cyfrowo:
+345.600.789,98 z³
+Kwota s³ownie:
+trzysta czterdzieœci piêæ milionów szeœæset tysiêcy siedemset osiemdziesi¹t dziewiêæ z³otych dziewiêædziesi¹t osiem groszy 
+
+Kwota podana cyfrowo:
+456.700,01 z³
+Kwota s³ownie:
+czterysta piêædziesi¹t szeœæ tysiêcy siedemset z³otych jeden grosz 
+
+Kwota podana cyfrowo:
+000.000.000.009,00 z³
+Kwota s³ownie:
+dziewiêæ z³otych zero groszy 
+
+Kwota podana cyfrowo:
+0,00 z³
+Kwota s³ownie:
+zero z³otych zero groszy 
