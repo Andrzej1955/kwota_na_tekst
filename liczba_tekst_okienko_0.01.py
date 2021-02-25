@@ -3,6 +3,7 @@
 
 from tkinter import *
 import re
+import time
 
 #==============================================================================
 #POCZĄTEK - ZAMIANA
@@ -13,6 +14,9 @@ liczba_P = ''
 format_gr = ''  #wybór formatu groszy
 kwota_s = ''
 kwota_ = ''
+PRZECINEK = '.'
+CYFRY = '0123456789'
+
 #wynik = ''
 #filepath = ''      
 #=================================================
@@ -35,13 +39,10 @@ nazwy_j = (('','miliard','miliardy','miliardów'),
 
 def zamiana(liczba,format_gr):
     '''ZAMIANA CYFR NA SŁOWA'''
-    #zamiana '.,' na '0'
+    #zamiana '.' na '0'
     przecinek = liczba[-3]
     liczba = liczba.replace(przecinek,'0')
-
-    #liczba = liczba.replace('\,','0')
-    liczba = liczba.replace('.','')
-    liczba = liczba.replace(',','')
+    print('liczba: ',liczba)
 
     plik = open("liczba.txt", "w")
     plik.write(liczba)
@@ -49,10 +50,11 @@ def zamiana(liczba,format_gr):
     
     #Sprawdzenie długości części całkowitej liczby
     liczba_cc = liczba[:-3]    #część całkowita liczby
+#    print('liczba_cc: ',liczba_cc)
     #utworzenie liczby o długości 15 znaków
     #dopełnienie liczby krótszej niż 15 znaków znakami "0" - po lewej stronie
     liczba_c = ('0' * (15 - int((len(liczba))))) + liczba   #liczba cała 15 znaków
-
+#    print('liczba_c: ',liczba_c)
     #=====================================================
     #Tworzenie [list] z częściami trójkowymi liczby
     #trojki = [mld, mln, tys, setk, gr] #tablica 3-znakowych sekwencji liczb
@@ -72,6 +74,7 @@ def zamiana(liczba,format_gr):
         trojki.insert(i, liczba_t)
         i +=1
         j += 3
+#    print('trojki: ',trojki)
     #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     #trojki_s - zamiana tablicy 'trojki' na string
     #w celu zamiany wpowadzonej liczby na format ###.###.###.##0,00
@@ -131,12 +134,23 @@ def zamiana(liczba,format_gr):
 
     #CAŁA LICZBA 0,00 - (część całkowita) - słowo: 'zero'
 
+#    try:
+#        if int(liczba_cc) == 0:
+#            slowa [12] = ''
+#            slowa [13] = ''
+#            slowa [14] = zero
+#            slowa [15] = nazwy_j[3][3]
+#    except ValueError:
+#        liczba_P = ''
+#        kontrola(liczba_P)
+
     if int(liczba_cc) == 0:
         slowa [12] = ''
         slowa [13] = ''
         slowa [14] = zero
         slowa [15] = nazwy_j[3][3]
-
+        
+        
     #GROSZE - ,00 - słowo zero ({16} = ',')
     slowa [16] = ''
 
@@ -169,34 +183,74 @@ def zamiana(liczba,format_gr):
     #==========================================
 
 def kontrola(liczba_P):
-    #liczba = self.liczba_P.get()     #wczytywana liczba
-    liczba = liczba_P
-    pat = re.compile(r'[*]')    #zmienna 're' do sprawdzenia prawidłowosci wczytanej liczby
-    #sprawdzenie czy znaki liczby są prawidłowe - wyrażenie regex
-    pat = re.compile(r'^[0-9]{0,3}[.,]?[0-9]{0,3}[.,]?[0-9]{0,3}[.,]?[0-9]{0,2}[0-9][.,][0-9]{2}$')
-    if not pat.match(liczba):
-        wynik = 'Niewłaściwy format wprowadzonej kwoty!\n Wprowadż kwotę.'
+    '''Formatowanie wprowadzonej kwoty do obliczeń'''
+    
+    dl_liczba = len(liczba_P)   #długość liczba_P
+    p = liczba_P.count('.')     #czy kropka dziesiętna jest w liczba_P
+
+    print('dl_liczba: ',dl_liczba)
+    print('p: ',p)
+
+    d = None
+    for i in range(dl_liczba):
+        if liczba_P[i] == '.':
+            d = i
+
+    if p == 1:
+        if d <= 12 and dl_liczba <= 15 and (dl_liczba - d) == 1:
+            liczba_P = liczba_P + '00'
+        if d <= 12 and dl_liczba <= 15 and (dl_liczba - d) == 2:
+            liczba_P = liczba_P + '0'
+        if d <= 12 and dl_liczba <= 15 and (dl_liczba - d) == 3:
+            liczba_P = liczba_P
+        if d <= 12 and dl_liczba <= 15 and (dl_liczba - d) >= 3:
+            liczba_P = liczba_P[:d+1] + liczba_P[d+1:d+3]
+        if d > 13:
+            liczba_P = 'BŁĄD'
     else:
-        wynik = liczba
+        if dl_liczba == 0:
+            liczba_P = 'BŁĄD'
+        elif 0 < dl_liczba <= 12:
+            liczba_P = liczba_P + '.00'
+        if dl_liczba > 12:
+            liczba_P = 'BŁĄD'
+    wynik = liczba_P
     return wynik
 
 def liczba_F(kwota_):
-    '''Zamiana wpowadzonej liczby na format ###.###.###.##0,00'''
+    '''Zamiana wpowadzonej liczby na format księgowy ###.###.###.##0,00'''
 
     plik_1 = open("trojki_s.txt", "r")
-    kwota_ = plik_1.read()
+    kwota_F = plik_1.read()
     plik_1.close()
-    kwota_ = kwota_[:19]
-    C = '1234567890'
-    m = 0
-    if kwota_ == '000.000.000.000.000':
-            kwota_ = '0,00'
+    kwota_F = kwota_F[:19]
+
+    if kwota_F[:17] == '000.000.000.000.0':
+        kwota_F = '0.' + kwota_F[17:19]
     else:
-        while kwota_[m] not in C:
+        kwota_F1 = []
+        for i in range(19):
+            u = kwota_F[i]
+            kwota_F1.append(u)
+        kwota_F = kwota_F1[:]
+        m = 0
+        while kwota_F[m] == '0' or kwota_F[m] == '.':
+            m = 0
+            del kwota_F[m]
+        kwota_F = kwota_F[m:19]
+
+        m=0
+        u = ''
+        d = len(kwota_F)
+        while kwota_F[m]:
+            u += kwota_F[m]
             m += 1
-        kwota_ = kwota_[m:19]
-        kwota_ = kwota_[:-4]+','+kwota_[-2:]
-    return kwota_
+            if m == d:
+                break
+        u = u[:-4]+','+u[-2:]
+        kwota_F = u
+
+    return kwota_F
    
 #==============================================================================
 #POCZĄTEK OKNA
@@ -216,59 +270,34 @@ class Apka(Frame):
         Utwórz widżety potrzebne do pobrania informacji podanych przez
         użytkownika i wyświetlenia wyniku.
         """
-        # utwórz etykietę z instrukcją
+        #etykieta z instrukcją
         self.inst_lbl = Label(self, font = ('calibri', 11),
               text =
-"=================================================================\n \
-\t\t      ZAMIANA LICZB NA TEKST\n\
-\n\
- Podaj kwotę w złotych z przedziału <0,  999.999.999.999,99>\n \
- w formacie : ##.##0,00 (####0,00) lub w formacie : ##,##0.00 (####0.00)\n \
- i składającą się tylko ze znaków: \'0123456789.,\'\n \
- oraz wybierz format 'groszy'\n \
-=================================================================", justify='left'
-              ).grid(row = 0, column = 1, rowspan = 8, columnspan = 8, sticky = W) #rowspan = 1, columnspan = 5) #, sticky = W)
-
-
-#==============================================================================
+"======================================================================================================\n \
+\t\t\t\t\tZAMIANA KWOTY NA TEKST\n\
+\tPodaj kwotę w złotych z przedziału <0,  999.999.999.999,99> w formacie : ##### lub w formacie : ###.##\n\
+\t\tskładającą się tylko ze znaków: \'0123456789.\' oraz wybierz format 'groszy'\n \
+======================================================================================================", justify='left'
+              ).grid(row = 0, column = 1, columnspan = 5, sticky = W) #rowspan = 1, columnspan = 5) #, sticky = W)
 
 
         # utwórz etykietę i pole znakowe służące do wpisania liczby
         self.wpisz_lbl = Label(self, font = ('calibri', 11),
-              text = 'Wpisz kwotę:'
-              ).grid(row = 9, column =1)#, sticky = W)
-        self.liczba_P = Entry(self, justify = RIGHT)
-        self.liczba_P.grid(row = 10, column = 1)#, sticky = W)#
+              text = '   Wpisz kwotę:'
+              ).grid(row = 9, column =2,sticky = W)#columnspan = 2
 
+        sv = StringVar()
+        self.liczba_P = Entry(self, justify = RIGHT, textvariable = sv)
+        self.liczba_P.grid(row = 9, column = 2, columnspan = 2)#, sticky = W)#
+        sv.trace('w', lambda nm, idx, mode, var=sv: self.validate_float(var)) #walidacja wprowadzanych danych
 
 #==============================================================================
 
         # utwórz etykietę z pytaniem o wybór formatu groszy
         self.wpisz_2_lbl = Label(self, font = ('calibri', 11),
-              text = "\nWybierz format groszy:"
-              ).grid(row = 13, column = 1)#, sticky = W) #, rowspan = 1) #, columnspan = 5)  #, sticky = W)
+              text = "Wybierz format groszy:"
+              ).grid(row = 10, column = 1, columnspan = 3)#, sticky = W) #, rowspan = 1) #, columnspan = 5)  #, sticky = W)
 
-#==============================================================================
-        # utwórz zmienną, która ma reprezentować pojedynczy format groszy - (PĘTLA)
-#        self.format_gr = StringVar()
-        #self.format_gr.set(None)
-#        self.format_gr.set('1')
-
-        # utwórz przyciski opcji do wyboru formatu groszy
-#        formaty_groszy = ['           zero groszy','           99 groszy','           99/100                 ']
-#        f = 1
-#        column = 0
-#        for format in formaty_groszy:
-#            Radiobutton(self,
-#                        variable = self.format_gr,
-#                        text = format,
-#                        value = f
-#                        ).grid(row = 14, column = column)#, sticky = W)
-#            column += 1
-#            f += 1
-
-
-#==============================================================================
 #==============================================================================
         # utwórz zmienną, która ma reprezentować pojedynczy format groszy
         self.format_gr = StringVar()
@@ -278,37 +307,44 @@ class Apka(Frame):
         # utwórz przycisk opcji do wyboru formatu groszy - tekstowego
         Radiobutton(self,
                     text = "zero groszy",
+                    indicatoron = 0,
+                    width = 22,
                     variable = self.format_gr,
                     value = "1",
-                    command = self.wpisz_1
-                    ).grid(row = 14, column = 1, sticky = W)
+                    pady = 2
+                    ).grid(row = 11, column = 1)
 
         # utwórz przycisk opcji do wyboru dramatu
         Radiobutton(self,
                     text = "99 groszy",
+                    indicatoron = 0,
+                    width = 22,
                     variable = self.format_gr,
                     value = "2",
-                    command = self.wpisz_1
-                    ).grid(row = 14, column = 1)#, sticky = W)
+                    pady = 2
+                    ).grid(row = 11, column = 2)
 
         # utwórz przycisk opcji do wyboru romansu
         Radiobutton(self,
                     text = "99/100",
+                    indicatoron = 0,
+                    width = 22,
                     variable = self.format_gr,
                     value = "3",
-                    command = self.wpisz_1
-                    ).grid(row = 14, column = 1, sticky = E)
+                    pady = 2
+                    ).grid(row = 11, column = 3)
 
 #==============================================================================
 
         # utwórz przycisk - Przycisk 'OK' - liczba na tekst
-#        self.wykonaj_2 = Button(self,
-#                                text = "OK",
-#                                font = ('calibri',13, 'underline'),
-#                                padx = 50,
-#                                command = self.wpisz_1)
-#        self.wykonaj_2.grid(row = 16, column = 1)#, sticky = W)	
-
+        self.wykonaj_2 = Button(self,
+                                text = "OK",
+                                font = ('calibri',13, 'underline'),
+                                padx = 83,
+                                pady = 20,
+                                command = self.wpisz_1
+                                )
+        self.wykonaj_2.grid(row = 9, rowspan = 6, column = 5)#, sticky = W)	rowspan = 15, 
 
 #==============================================================================
 
@@ -318,86 +354,112 @@ class Apka(Frame):
                                  font = ('calibri',13, 'underline'),
                                  padx = 35,
                                  command = root.destroy)
-        self.koniec_ost.grid(row = 31, column = 1)#, sticky = W)
+        self.koniec_ost.grid(row = 31, column = 1,columnspan = 5)#, sticky = W)
 
 #==============================================================================
         # utwórz etykietę z pustą linią '0' -'' - lewa ramka
-        self.linia = Label(self, font = ('calibri', 11),
+        self.linia = Label(self, font = ('Courier New', 5),
               text = "     "
-              ).grid(row = 18, column = 0)
+              ).grid(row = 32, column = 0)
 
         # utwórz etykietę z linią '1' - '=================='
-        self.linia = Label(self, font = ('calibri', 11),
-              text = "==================================================================", justify='left'
-              ).grid(row = 18, column = 1)
+        self.linia = Label(self, font = ('Courier New', 5),
+              text = "  ", justify='left'
+              ).grid(row = 18, column = 1, columnspan = 5)
 
         # utwórz etykietę z pustą linią '2' '' - prawa rfamka
-        self.linia = Label(self, font = ('calibri', 11),
+        self.linia = Label(self, font = ('Courier New', 5),
+              text = "    "
+              ).grid(row = 32, column = 4)
+
+        # utwórz etykietę z pustą linią '2' '' - prawa rfamka
+        self.linia = Label(self, font = ('Courier New', 5),
               text = "     "
-              ).grid(row = 18, column = 2)
-
-#==============================================================================
-       # utwórz widżet Text do wyświetlenia komunikatu 'OK' lub 'C'
-        #self.kwota_P = Text(self, width = 20, height = 1)#, wrap = WORD)
-        #self.kwota_P.grid(row = 19, column = 1)#, sticky = W)
-#==============================================================================
-
-
-
+              ).grid(row = 32, column = 6)
 
        # utwórz widżet Text do wyświetlenia komunikatu 'tekst kwoty' lub 'wpisz kwotę'
-        self.kwota_txt = Text(self, width = 55, height = 16, wrap = WORD, padx = 10, pady = 10)
-        self.kwota_txt.grid(row = 29, column = 1)#, sticky = E)
+        self.kwota_txt = Text(self,  font = ('Calibri', 11),width = 100, height = 6, wrap = WORD, padx = 10, pady = 10)
+        self.kwota_txt.grid(row = 29, column = 1 ,columnspan = 5)#, sticky = E)
+
+
 
         # utwórz etykietę z pustą linią '3' '=================='
-        self.linia = Label(self, font = ('calibri', 11),
+        self.linia = Label(self, font = ('Courier New', 5),
               text = "", justify='left'
               ).grid(row = 30, column = 1)#, sticky = W) #rowspan = 1, columnspan = 5) #, sticky = W)
 
         # utwórz etykietę z pustą linią '4' '=================='
-        self.linia = Label(self, font = ('calibri', 11),
+        self.linia = Label(self, font = ('Courier New', 5),
               text = "", justify='left'
               ).grid(row = 32, column = 1)#, sticky = W) #rowspan = 1, columnspan = 5) #, sticky = W)
 
+
+
+
+
+
 #==============================================================================
+
+    def validate_float(self,var):
+        '''
+        Sprawdzenie poprawności wprowadzenia liczby zmiennoprzecinkowej
+        w polu "Entry":
+            sv = StringVar()
+            self.ac = Entry(self, .... , textvariable = sv)
+          self.ac.grid(row = 3, column = 9)
+          sv.trace('w', lambda nm, idx, mode, var=sv: self.validate_float(var))
+        '''
+        validate_old_value = ''
+        new_value = var.get()
+        try:
+            new_value == float(new_value) 
+            validate_old_value = new_value
+        except:
+            var.set(validate_old_value)    
+
 
     def wpisz_1(self):
         """ Wyświetl komunikat zależny od od stanu przycisku 'OK_2'. """
-        liczba_P= self.liczba_P.get()
+        liczba_P = self.liczba_P.get()
         format_gr = self.format_gr.get()
         liczba = kontrola(liczba_P)
+        print('liczba: ',liczba)
         napis = liczba
-        if napis == 'Niewłaściwy format wprowadzonej kwoty!\n Wprowadż kwotę.':
+        if napis == 'BŁĄD':
+            napis = 'Niewłaściwy format wprowadzonej kwoty!\n Wprowadż właściwą kwotę.'
             self.kwota_txt.delete(0.0, END)
-            self.kwota_txt.insert(0.0, liczba_P + '\n\n'+ napis)
+            self.kwota_txt.insert(0.0, 'Kwota podana:\n' + liczba_P + '\n\n'+ napis)
             first = '0'
-            last = len(liczba)
+            last = len(liczba_P)
             self.liczba_P.delete(first,last)
+            liczba = ''
+        format_gr = self.format_gr.get()
         kwota_s = zamiana(liczba,format_gr)
+
         kwota_C = liczba_F(kwota_)
+
         plik = open("kwota_slownie.txt", "a")
-        kwoty = ('\nKwota podana cyfrowo:\n',kwota_C,' zł','\nKwota słownie:\n',kwota_s,'\n')
+        kwoty = ('\nKwota podana księgowo:\n',kwota_C,' zł','\nKwota słownie:\n',kwota_s,'\n')
         plik.writelines(kwoty)
         plik.close()
 
         first = '0'
-        last = len(liczba)
+        last = len(liczba_P)
         self.liczba_P.delete(first,last)
 
         napis_1 = '\
-Kwota podana:\n'
-        napis_2 = ' zł\n\n\
-Kwota sformatowana cyfrowo:\n'
-        napis_3 = ' zł\n\n\
+Kwota podana: '
+        napis_2 = ' zł\t\t\t\t\t\
+Kwota sformatowana księgowo: '
+        napis_3 = ' zł\n\
 Kwota słownie:\n'
-        napis_4 = '\n=====================================================\n\
-Kwota słownie została zapisana do pliku\n\
-"kwota_slownie.txt"\n\
-====================================================='
+        napis_4 = '\n=====================\n\
+Kwota słownie została zapisana do pliku "kwota_slownie.txt"'
         napis = napis_1 + liczba_P + napis_2 + kwota_C + napis_3 + kwota_s + napis_4
 
         self.kwota_txt.delete(0.0, END)
         self.kwota_txt.insert(0.0, napis)
+        self.format_gr.set(None)
 
 #==============================================================================
 
