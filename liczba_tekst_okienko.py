@@ -42,7 +42,6 @@ def zamiana(liczba,format_gr):
     #zamiana '.' na '0'
     przecinek = liczba[-3]
     liczba = liczba.replace(przecinek,'0')
-    print('liczba zamiana 1: ',liczba)
 
     plik = open("liczba.txt", "w")
     plik.write(liczba)
@@ -55,7 +54,6 @@ def zamiana(liczba,format_gr):
     #dopełnienie liczby krótszej niż 15 znaków znakami "0" - po lewej stronie
 #    liczba_c = ('0' * (15 - int((len(liczba))))) + liczba   #liczba cała 15 znaków
     liczba_c = ('0' * (15 - len(liczba))) + liczba   #liczba cała 15 znaków
-    print('liczba_c zamiana 2: ',liczba_c)
     #=====================================================
     #Tworzenie [list] z częściami trójkowymi liczby
     #trojki = [mld, mln, tys, setk, gr] #tablica 3-znakowych sekwencji liczb
@@ -68,9 +66,6 @@ def zamiana(liczba,format_gr):
     trojki = [] #tablica 3-znakowych sekwencji liczb
 
     trojki = [(liczba_c[j:j+3]) for (j) in range(0,15,3)]
-
-    print('trojki: ',trojki)
-
     #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     #trojki_s - zamiana tablicy 'trojki' na string
     #w celu zamiany wpowadzonej liczby na format ###.###.###.##0,00
@@ -78,14 +73,11 @@ def zamiana(liczba,format_gr):
     trojki_s = ''
     for s in range(5):
         trojki_s += trojki[s]+ '.'
-    print('trojki_s: ',trojki_s)
-
     plik = open("trojki_s.txt", "w")
     plik.write(trojki_s)
     plik.close()
 
     #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
 
     #=============================================
     #tablica do zapisu słów z przekształcenia poszczególnych cyfr wpisanej liczby
@@ -167,10 +159,6 @@ def kontrola(liczba_P):
     
     dl_liczba = len(liczba_P)   #długość liczba_P
     p = liczba_P.count('.')     #czy kropka dziesiętna jest w liczba_P
-
-    print('dl_liczba: ',dl_liczba)
-    print('p: ',p)
-
     d = None
     for i in range(dl_liczba):
         if liczba_P[i] == '.':
@@ -209,11 +197,7 @@ def liczba_F(kwota_):
         kwota_F = '0.' + kwota_F[17:19]
     else:
         kwota_F1 = []
-#        for i in range(19):
-#            u = kwota_F[i]
-#            kwota_F1.append(u)
         kwota_F1 = [(kwota_F[i]) for i in range(19)]
-        print('kwota_F1 - liczba_F: ',kwota_F1)
         kwota_F = kwota_F1[:]
         m = 0
         while kwota_F[m] == '0' or kwota_F[m] == '.':
@@ -378,11 +362,6 @@ class Apka(Frame):
               text = "", justify='left'
               ).grid(row = 32, column = 1)#, sticky = W) #rowspan = 1, columnspan = 5) #, sticky = W)
 
-
-
-
-
-
 #==============================================================================
 
     def validate_float(self,var):
@@ -401,7 +380,6 @@ class Apka(Frame):
             validate_old_value = new_value
         except:
             var.set(validate_old_value)    
-
 
     def wpisz_1(self):
         """ Wyświetl komunikat zależny od od stanu przycisku 'OK_2'. """
