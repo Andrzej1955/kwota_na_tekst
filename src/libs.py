@@ -1,2 +1,2 @@
 def openFile(fileName: str, mode: str):
-    return open("liczba.txt", mode, encoding='utf-8')
+    return open(fileName, mode, encoding='utf-8')
