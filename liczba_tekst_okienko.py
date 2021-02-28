@@ -124,16 +124,6 @@ def zamiana(liczba,format_gr):
 
     #CAŁA LICZBA 0,00 - (część całkowita) - słowo: 'zero'
 
-#    try:
-#        if int(liczba_cc) == 0:
-#            slowa [12] = ''
-#            slowa [13] = ''
-#            slowa [14] = zero
-#            slowa [15] = nazwy_j[3][3]
-#    except ValueError:
-#        liczba_P = ''
-#        kontrola(liczba_P)
-
     if int(liczba_cc) == 0:
         slowa [12] = ''
         slowa [13] = ''
@@ -265,11 +255,14 @@ class Apka(Frame):
         #etykieta z instrukcją
         self.inst_lbl = Label(self, font = ('calibri', 11),
               text =
-"======================================================================================================\n \
+"=============================================================================\
+====================================\n \
 \t\t\t\t\tZAMIANA KWOTY NA TEKST\n\
-\tPodaj kwotę w złotych z przedziału <0,  999.999.999.999,99> w formacie : ##### lub w formacie : ###.##\n\
+\tPodaj kwotę w złotych z przedziału <0,  999.999.999.999,99> w formacie : \
+##### lub w formacie : ###.##\n\
 \t\tskładającą się tylko ze znaków: \'0123456789.\' oraz wybierz format 'groszy'\n \
-======================================================================================================", justify='left'
+=============================================================================\
+====================================", justify='left'
               ).grid(row = 0, column = 1, columnspan = 5, sticky = W) #rowspan = 1, columnspan = 5) #, sticky = W)
 
 
@@ -332,7 +325,7 @@ class Apka(Frame):
         self.wykonaj_2 = Button(self,
                                 text = "OK",
                                 font = ('calibri',13, 'underline'),
-                                padx = 83,
+                                padx = 105,
                                 pady = 20,
                                 command = self.wpisz_1
                                 )
@@ -370,7 +363,7 @@ class Apka(Frame):
               ).grid(row = 32, column = 6)
 
        # utwórz widżet Text do wyświetlenia komunikatu 'tekst kwoty' lub 'wpisz kwotę'
-        self.kwota_txt = Text(self,  font = ('Calibri', 11),width = 100, height = 6, wrap = WORD, padx = 10, pady = 10)
+        self.kwota_txt = Text(self,  font = ('Calibri', 11),width = 110, height = 6, wrap = WORD, padx = 10, pady = 10)
         self.kwota_txt.grid(row = 29, column = 1 ,columnspan = 5)#, sticky = E)
 
 
@@ -412,65 +405,58 @@ class Apka(Frame):
 
     def wpisz_1(self):
         """ Wyświetl komunikat zależny od od stanu przycisku 'OK_2'. """
+
         liczba_P = self.liczba_P.get()
-        format_gr = self.format_gr.get()
         liczba = kontrola(liczba_P)
         print('liczba wpisz_1: ',liczba)
         napis = liczba
         if napis == 'BŁĄD':
-            napis = 'Niewłaściwy format wprowadzonej kwoty!\n Wprowadż właściwą kwotę.'
+            napis = 'Niewłaściwy format wprowadzonej kwoty!\nWprowadż właściwą kwotę.'
             self.kwota_txt.delete(0.0, END)
-            self.kwota_txt.insert(0.0, 'Kwota podana:\n' + liczba_P + '\n\n'+ napis)
+            self.kwota_txt.insert(0.0, 'Kwota podana:' + liczba_P + '\n' + napis)
             first = '0'
             last = len(liczba_P)
             self.liczba_P.delete(first,last)
             self.format_gr.set(None)
-            #liczba = ''
-            #pass
-        format_gr = self.format_gr.get()
-        kwota_s = zamiana(liczba,format_gr)
+        else:
+            format_gr = self.format_gr.get()
+            if format_gr != '1' != '2' != '3':
+                napis_5 = 'Ponieważ nie wybrano formatu groszy przyjęty został format "zero groszy"'
+                self.format_gr.set('1')
+            else:
+                napis_5 = 'AA'
+            kwota_s = zamiana(liczba,format_gr)
+            kwota_C = liczba_F(kwota_)      #format księgowy
+            linie = []
+            try:
+                with open("kwota_slownie.txt", "r") as lin:  # odczytywanie linia po linii do listy
+                    linie = lin.readlines()
+            except FileNotFoundError:
+                with open("kwota_slownie.txt", "a") as plik:
+                    plik.close()
+            if len(linie) > 50:
+                del linie[:10]
+            with open("kwota_slownie.txt", "w") as lin:  # zapis linii
+                lin.writelines(linie[:])
 
-        kwota_C = liczba_F(kwota_)
-
-        linie = []
-        try:
-            with open("kwota_slownie.txt", "r") as lin:  # odczytywanie linia po linii do listy
-                linie = lin.readlines()
-#                for linia in linie:
-#                    print(linia.strip())
-        except FileNotFoundError:
             with open("kwota_slownie.txt", "a") as plik:
-                plik.close()
-        if len(linie) > 50:
-            del linie[:10]
-#            print('\nBIG BANG\n')
-        with open("kwota_slownie.txt", "w") as lin:  # zapis linii
-            lin.writelines(linie[:])
-#            lin.close()
+                kwoty = ('\nKwota podana księgowo:\n',kwota_C,' zł','\nKwota słownie:\n',kwota_s,'\n')
+                plik.writelines(kwoty)
 
-        with open("kwota_slownie.txt", "a") as plik:
-#        plik = open("kwota_slownie.txt", "a")
-            kwoty = ('\nKwota podana księgowo:\n',kwota_C,' zł','\nKwota słownie:\n',kwota_s,'\n')
-            plik.writelines(kwoty)
-#            plik.close()
+            first = '0'
+            last = len(liczba_P)
+            self.liczba_P.delete(first,last)
 
-        first = '0'
-        last = len(liczba_P)
-        self.liczba_P.delete(first,last)
+            napis_1 = 'Kwota podana:   '
+            napis_2 = ' zł\t\t\t\t\t\t\t       Kwota w formacie księgowym:   '
+            napis_3 = ' zł\nKwota słownie:   '
+            napis_4 = '\n=====================\n'
+            napis_6 = '\nKwota słownie została zapisana do pliku "kwota_slownie.txt"\n'
+            napis = napis_1 + liczba_P + napis_2 + kwota_C + napis_3 + kwota_s + napis_4 + napis_5 + napis_6
 
-        napis_1 = '\
-Kwota podana: '
-        napis_2 = ' zł\t\t\t\t\t\
-Kwota sformatowana księgowo: '
-        napis_3 = ' zł\n\
-Kwota słownie:\n'
-        napis_4 = '\n=====================\n\
-Kwota słownie została zapisana do pliku "kwota_slownie.txt"'
-        napis = napis_1 + liczba_P + napis_2 + kwota_C + napis_3 + kwota_s + napis_4
-
-        self.kwota_txt.delete(0.0, END)
-        self.kwota_txt.insert(0.0, napis)
-        self.format_gr.set(None)
+            self.kwota_txt.delete(0.0, END)
+            self.kwota_txt.insert(0.0, napis)
+            self.format_gr.set(None)
 
 #==============================================================================
 
