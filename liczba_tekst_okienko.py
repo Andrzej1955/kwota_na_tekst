@@ -230,6 +230,7 @@ class Apka(Frame):
         super(Apka, self).__init__(master)  
         self.grid()
         self.create_widgets()
+        self.master.geometry('+850+15')
 
 #==============================================================================
 
