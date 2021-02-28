@@ -5,6 +5,8 @@ from tkinter import *
 import re
 import time
 
+from src.libs import openFile
+
 #==============================================================================
 #POCZĄTEK - ZAMIANA
 
@@ -43,7 +45,7 @@ def zamiana(liczba,format_gr):
     przecinek = liczba[-3]
     liczba = liczba.replace(przecinek,'0')
 
-    plik = open("liczba.txt", "w")
+    plik = openFile("liczba.txt", "w")
     plik.write(liczba)
     plik.close()
     
@@ -73,7 +75,7 @@ def zamiana(liczba,format_gr):
     trojki_s = ''
     for s in range(5):
         trojki_s += trojki[s]+ '.'
-    plik = open("trojki_s.txt", "w")
+    plik = openFile("trojki_s.txt", "w")
     plik.write(trojki_s)
     plik.close()
 
@@ -188,7 +190,7 @@ def kontrola(liczba_P):
 def liczba_F(kwota_):
     '''Zamiana wpowadzonej liczby na format księgowy ###.###.###.##0,00'''
 
-    plik_1 = open("trojki_s.txt", "r")
+    plik_1 = openFile("trojki_s.txt", "r")
     kwota_F = plik_1.read()
     plik_1.close()
     kwota_F = kwota_F[:19]
@@ -407,17 +409,17 @@ class Apka(Frame):
             kwota_C = liczba_F(kwota_)      #format księgowy
             linie = []
             try:
-                with open("kwota_slownie.txt", "r") as lin:  # odczytywanie linia po linii do listy
+                with openFile("kwota_slownie.txt", "r") as lin:  # odczytywanie linia po linii do listy
                     linie = lin.readlines()
             except FileNotFoundError:
-                with open("kwota_slownie.txt", "a") as lin:
+                with openFile("kwota_slownie.txt", "a") as lin:
                     lin.close()
             if len(linie) > 50:
                 del linie[:10]
-            with open("kwota_slownie.txt", "w") as lin:  # zapis linii
+            with openFile("kwota_slownie.txt", "w") as lin:  # zapis linii
                 lin.writelines(linie[:])
 
-            with open("kwota_slownie.txt", "a") as plik:
+            with openFile("kwota_slownie.txt", "a") as plik:
                 kwoty = ('\nKwota podana księgowo:\n',kwota_C,' zł','\nKwota słownie:\n',kwota_s,'\n')
                 plik.writelines(kwoty)
 
