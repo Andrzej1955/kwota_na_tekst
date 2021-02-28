@@ -410,8 +410,8 @@ class Apka(Frame):
                 with open("kwota_slownie.txt", "r") as lin:  # odczytywanie linia po linii do listy
                     linie = lin.readlines()
             except FileNotFoundError:
-                with open("kwota_slownie.txt", "a") as plik:
-                    plik.close()
+                with open("kwota_slownie.txt", "a") as lin:
+                    lin.close()
             if len(linie) > 50:
                 del linie[:10]
             with open("kwota_slownie.txt", "w") as lin:  # zapis linii
