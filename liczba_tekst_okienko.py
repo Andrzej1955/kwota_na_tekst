@@ -2,11 +2,7 @@
 # Tworzy okno do wpisanoia i uzyskania ntejkstu kwoty
 
 from tkinter import *
-import re
-import time
-
 from src.libs import openFile
-
 #==============================================================================
 #POCZĄTEK - ZAMIANA
 
@@ -36,189 +32,6 @@ nazwy_j = (('','miliard','miliardy','miliardów'),
 
 #=================================================
 
-#==================================================
-#ZAMIANA CYFR NA SŁOWA
-
-def zamiana(liczba,format_gr):
-    '''ZAMIANA CYFR NA SŁOWA'''
-    #zamiana '.' na '0'
-    przecinek = liczba[-3]
-    liczba = liczba.replace(przecinek,'0')
-
-    plik = openFile("liczba.txt", "w")
-    plik.write(liczba)
-    plik.close()
-    
-    #Sprawdzenie długości części całkowitej liczby
-    liczba_cc = liczba[:-3]    #część całkowita liczby
-#    print('liczba_cc: ',liczba_cc)
-    #utworzenie liczby o długości 15 znaków
-    #dopełnienie liczby krótszej niż 15 znaków znakami "0" - po lewej stronie
-#    liczba_c = ('0' * (15 - int((len(liczba))))) + liczba   #liczba cała 15 znaków
-    liczba_c = ('0' * (15 - len(liczba))) + liczba   #liczba cała 15 znaków
-    #=====================================================
-    #Tworzenie [list] z częściami trójkowymi liczby
-    #trojki = [mld, mln, tys, setk, gr] #tablica 3-znakowych sekwencji liczb
-    #wstawienie liczby - całej 15-znakowej 'liczba_c'
-    # - podzielonej na 3-znakowe sekwencje
-    # - do tablicy 'trojki'
-
-    #trojki = ['','','','',''] #tablica 3-znakowych sekwencji liczb
-
-    trojki = [] #tablica 3-znakowych sekwencji liczb
-
-    trojki = [(liczba_c[j:j+3]) for (j) in range(0,15,3)]
-    #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    #trojki_s - zamiana tablicy 'trojki' na string
-    #w celu zamiany wpowadzonej liczby na format ###.###.###.##0,00
-
-    trojki_s = ''
-    for s in range(5):
-        trojki_s += trojki[s]+ '.'
-    plik = openFile("trojki_s.txt", "w")
-    plik.write(trojki_s)
-    plik.close()
-
-    #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
-    #=============================================
-    #tablica do zapisu słów z przekształcenia poszczególnych cyfr wpisanej liczby
-    slowa = []
-    #===========================================================
-    #PĘTLA GŁÓWNA - cyfry na słowa
-
-    n = 0
-    for k in range(5):
-        slowa_0 = setki [int(trojki[k][0])]
-        slowa.insert(n, slowa_0)
-
-        if int(trojki [k][1:3]) >= 11 and int(trojki[k][1:3]) <= 19:
-            slowa_1 = jednostki_1[int(trojki [k][2])]
-            slowa_2 = ''
-        else:
-            slowa_1 = dziesiatki [int(trojki [k][1])]
-            slowa_2 = jednostki [int(trojki [k][2])]
-        slowa.insert(n+1, slowa_1)
-        slowa.insert(n+2, slowa_2)
-
-    # określenie sekwencji - słowo 'miliard/y/ów','milion/y/ów','tysiąc/e/ęcy','złoty/e/ych','grosz/e/y'
-        if int(trojki[k]) == 0:
-            slowa_s = nazwy_j[k][0]
-        elif int(trojki[k]) == 1:
-            slowa_s = nazwy_j[k][1]
-        elif int(trojki[k][1:3]) >= 5 and int(trojki[k][1:3]) <= 21:
-            slowa_s = nazwy_j[k][3]
-        elif int(trojki[k][2]) >= 2 and int(trojki[k][2]) <= 4:
-            slowa_s = nazwy_j[k][2]
-        else:
-            slowa_s = nazwy_j[k][3]
-
-        slowa.insert(n+3, slowa_s)
-        n += 4
-
-    #CAŁA LICZBA 0,00 - (część całkowita) - słowo: 'zero'
-
-    if int(liczba_cc) == 0:
-        slowa [12] = ''
-        slowa [13] = ''
-        slowa [14] = zero
-        slowa [15] = nazwy_j[3][3]
-        
-        
-    #GROSZE - ,00 - słowo zero ({16} = ',')
-    slowa [16] = ''
-
-    if int(trojki[4]) == 0:
-        slowa [17] = ''
-        slowa [18] = zero
-
-    if format_gr == '2':    #format '00 groszy'
-        slowa [17] = ''
-        slowa [18] = liczba[-2:]
-        
-    if format_gr == '3':    #format '00/100'
-        slowa [17] = ''
-        slowa [18] = ''
-        slowa [19] = liczba[-2:]+'/100'
-
-    #===========================================================
-    #kwota słownie po usunięciu zbędnych znaków
-    kwota_s = ''
-    for m in range(20):
-        kwota_s += slowa[m]
-        if slowa[m]:
-            kwota_s += ' '
-        else:
-            kwota_s += ''
-        m += 1
-
-    return kwota_s
-    #KONIEC ZAMIANA
-    #==========================================
-
-def kontrola(liczba_P):
-    '''Formatowanie wprowadzonej kwoty do obliczeń'''
-    
-    dl_liczba = len(liczba_P)   #długość liczba_P
-    p = liczba_P.count('.')     #czy kropka dziesiętna jest w liczba_P
-    d = None
-    for i in range(dl_liczba):
-        if liczba_P[i] == '.':
-            d = i
-
-    if p == 1:
-        if d <= 12 and dl_liczba <= 15 and (dl_liczba - d) == 1:
-            liczba_P = liczba_P + '00'
-        if d <= 12 and dl_liczba <= 15 and (dl_liczba - d) == 2:
-            liczba_P = liczba_P + '0'
-        if d <= 12 and dl_liczba <= 15 and (dl_liczba - d) == 3:
-            liczba_P = liczba_P
-        if d <= 12 and dl_liczba <= 15 and (dl_liczba - d) >= 3:
-            liczba_P = liczba_P[:d+1] + liczba_P[d+1:d+3]
-        if d > 13:
-            liczba_P = 'BŁĄD'
-    else:
-        if dl_liczba == 0:
-            liczba_P = 'BŁĄD'
-        elif 0 < dl_liczba <= 12:
-            liczba_P = liczba_P + '.00'
-        if dl_liczba > 12:
-            liczba_P = 'BŁĄD'
-    wynik = liczba_P
-    return wynik
-
-def liczba_F(kwota_):
-    '''Zamiana wpowadzonej liczby na format księgowy ###.###.###.##0,00'''
-
-    plik_1 = openFile("trojki_s.txt", "r")
-    kwota_F = plik_1.read()
-    plik_1.close()
-    kwota_F = kwota_F[:19]
-
-    if kwota_F[:17] == '000.000.000.000.0':
-        kwota_F = '0.' + kwota_F[17:19]
-    else:
-        kwota_F1 = []
-        kwota_F1 = [(kwota_F[i]) for i in range(19)]
-        kwota_F = kwota_F1[:]
-        m = 0
-        while kwota_F[m] == '0' or kwota_F[m] == '.':
-            m = 0
-            del kwota_F[m]
-        kwota_F = kwota_F[m:19]
-
-        m=0
-        u = ''
-        d = len(kwota_F)
-        while kwota_F[m]:
-            u += kwota_F[m]
-            m += 1
-            if m == d:
-                break
-        u = u[:-4]+','+u[-2:]
-        kwota_F = u
-
-    return kwota_F
    
 #==============================================================================
 #POCZĄTEK OKNA
@@ -314,7 +127,7 @@ class Apka(Frame):
                                 font = ('calibri',13, 'underline'),
                                 padx = 105,
                                 pady = 20,
-                                command = self.wpisz_1
+                                command = self.main
                                 )
         self.wykonaj_2.grid(row = 9, rowspan = 6, column = 5)#, sticky = W)	rowspan = 15, 
 
@@ -365,8 +178,15 @@ class Apka(Frame):
               text = "", justify='left'
               ).grid(row = 32, column = 1)#, sticky = W) #rowspan = 1, columnspan = 5) #, sticky = W)
 
+
+
+
+
+
 #==============================================================================
 
+#==================================================
+#ZAMIANA CYFR NA SŁOWA
     def validate_float(self,var):
         '''
         Sprawdzenie poprawności wprowadzenia liczby zmiennoprzecinkowej
@@ -384,13 +204,232 @@ class Apka(Frame):
         except:
             var.set(validate_old_value)    
 
-    def wpisz_1(self):
-        """ Wyświetl komunikat zależny od od stanu przycisku 'OK_2'. """
 
-        liczba_P = self.liczba_P.get()
-        liczba = kontrola(liczba_P)
-        print('liczba wpisz_1: ',liczba)
+    def formattingTheEnteredNumber(self):
+        '''Formatowanie wprowadzonej kwoty do obliczeń na format 0.00'''
+        liczba_P = self.liczba_P.get()  #pobranie wprowadzonej kwoty
+        liczba = liczba_P
+        
+        dl_liczba = len(liczba)   #długość liczba_P
+        p = liczba.count('.')     #czy kropka dziesiętna jest w liczba_P
+
+        d = None
+        for i in range(dl_liczba):
+            if liczba[i] == '.':
+                d = i
+
+        if p == 1:
+            if d <= 12 and dl_liczba <= 15 and (dl_liczba - d) == 1:
+                liczba = liczba + '00'
+            if d <= 12 and dl_liczba <= 15 and (dl_liczba - d) == 2:
+                liczba = liczba + '0'
+            if d <= 12 and dl_liczba <= 15 and (dl_liczba - d) == 3:
+                liczba = liczba
+            if d <= 12 and (dl_liczba - d) >= 3:
+                liczba = liczba[:d+1] + liczba[d+1:d+3]
+            if d > 12:
+                liczba = 'BŁĄD'
+        else:
+            if dl_liczba == 0:
+                liczba = 'BŁĄD'
+            elif 0 < dl_liczba <= 12:
+                liczba = liczba + '.00'
+            if dl_liczba > 12:
+                liczba = 'BŁĄD'
+
+        return liczba, liczba_P
+
+
+    def amountInWords(self,liczba,format_gr):
+        '''ZAMIANA CYFR NA SŁOWA'''
+        #zamiana '.' na '0'
+        przecinek = liczba[-3]
+        liczba = liczba.replace(przecinek,'0')
+   
+        #Sprawdzenie długości części całkowitej liczby
+        liczba_cc = liczba[:-3]    #część całkowita liczby
+        #utworzenie liczby o długości 15 znaków
+        #dopełnienie liczby krótszej niż 15 znaków znakami "0" - po lewej stronie
+        liczba_c = ('0' * (15 - len(liczba))) + liczba   #liczba cała 15 znaków
+        #=====================================================
+        #Tworzenie [list] z częściami trójkowymi liczby
+        #trojki = [mld, mln, tys, setk, gr] #tablica 3-znakowych sekwencji liczb
+        #wstawienie liczby - całej 15-znakowej 'liczba_c'
+        # - podzielonej na 3-znakowe sekwencje
+        # - do tablicy 'trojki'
+
+        trojki = [] #tablica 3-znakowych sekwencji liczb
+
+        trojki = [(liczba_c[j:j+3]) for (j) in range(0,15,3)]
+
+        #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        #trojki_s - zamiana tablicy 'trojki' na string
+        #w celu zamiany wpowadzonej liczby na format ###.###.###.##0,00
+
+        trojki_s = ''
+        for s in range(5):
+            trojki_s += trojki[s]+ '.'
+        kwota_F = self.conversionToTheAccountingFormat(trojki_s)
+
+        #=============================================
+        #tablica do zapisu słów z przekształcenia poszczególnych cyfr wpisanej liczby
+        slowa = []
+
+        #PĘTLA GŁÓWNA - cyfry na słowa
+
+        n = 0
+        for k in range(5):
+            slowa_0 = setki [int(trojki[k][0])]
+            slowa.insert(n, slowa_0)
+
+            if int(trojki [k][1:3]) >= 11 and int(trojki[k][1:3]) <= 19:
+                slowa_1 = jednostki_1[int(trojki [k][2])]
+                slowa_2 = ''
+            else:
+                slowa_1 = dziesiatki [int(trojki [k][1])]
+                slowa_2 = jednostki [int(trojki [k][2])]
+            slowa.insert(n+1, slowa_1)
+            slowa.insert(n+2, slowa_2)
+
+        # określenie sekwencji - słowo 'miliard/y/ów','milion/y/ów','tysiąc/e/ęcy','złoty/e/ych','grosz/e/y'
+            if int(trojki[k]) == 0:
+                slowa_s = nazwy_j[k][0]
+            elif int(trojki[k]) == 1:
+                slowa_s = nazwy_j[k][1]
+            elif int(trojki[k][1:3]) >= 5 and int(trojki[k][1:3]) <= 21:
+                slowa_s = nazwy_j[k][3]
+            elif int(trojki[k][2]) >= 2 and int(trojki[k][2]) <= 4:
+                slowa_s = nazwy_j[k][2]
+            else:
+                slowa_s = nazwy_j[k][3]
+
+            slowa.insert(n+3, slowa_s)
+            n += 4
+
+        #CAŁA LICZBA 0,00 - (część całkowita) - słowo: 'zero'
+
+        if int(liczba_cc) == 0:
+            slowa [12] = ''
+            slowa [13] = ''
+            slowa [14] = zero
+            slowa [15] = nazwy_j[3][3]
+        
+        #GROSZE - ,00 - słowo zero ({16} = ',')
+        slowa [16] = ''
+
+        if int(trojki[4]) == 0:
+            slowa [17] = ''
+            slowa [18] = zero
+
+        if format_gr == '2':    #format '00 groszy'
+            slowa [17] = ''
+            slowa [18] = liczba[-2:]
+        
+        if format_gr == '3':    #format '00/100'
+            slowa [17] = ''
+            slowa [18] = ''
+            slowa [19] = liczba[-2:]+'/100'
+
+        #===========================================================
+        #kwota słownie po usunięciu zbędnych znaków
+        kwota_s = ''
+        for m in range(20):
+            kwota_s += slowa[m]
+            if slowa[m]:
+                kwota_s += ' '
+            else:
+                kwota_s += ''
+            m += 1
+
+        return kwota_s, kwota_F
+        #KONIEC zamiany 
+    #==========================================
+
+
+    def conversionToTheAccountingFormat(self,trojki_s):
+        '''Zamiana wpowadzonej liczby na format księgowy ###.###.###.##0,00'''
+      
+        kwota_F = trojki_s
+        kwota_F = kwota_F[:19]
+
+        if kwota_F[:17] == '000.000.000.000.0':
+            kwota_F = '0.' + kwota_F[17:19]
+        else:
+            kwota_F1 = []
+            kwota_F1 = [(kwota_F[i]) for i in range(19)]
+
+            kwota_F = kwota_F1[:]
+            m = 0
+            while kwota_F[m] == '0' or kwota_F[m] == '.':
+                m = 0
+                del kwota_F[m]
+            kwota_F = kwota_F[m:19]
+
+            m=0
+            u = ''
+            d = len(kwota_F)
+            while kwota_F[m]:
+                u += kwota_F[m]
+                m += 1
+                if m == d:
+                    break
+            u = u[:-4]+','+u[-2:]
+            kwota_F = u
+
+        return kwota_F
+   
+
+    def amountInWordsOnTheScreen(self, kwota_s, liczba_P, kwota_F, napis_5):
+        '''Wpisanie kwoty słownie na ekranie'''
+        first = '0'
+        last = 16    #len(liczba_P)
+        self.liczba_P.delete(first,last)
+
+        napis_1 = 'Kwota podana:   '
+        napis_2 = ' zł\t\t\t\t\t\t\t       Kwota w formacie księgowym:   '
+        napis_3 = ' zł\nKwota słownie:   '
+        napis_4 = '\n=====================\n'
+        napis_6 = 'Kwota słownie została zapisana do pliku "kwota_slownie.txt"\n'
+        napis = napis_1 + liczba_P + napis_2 + kwota_F + napis_3 + kwota_s + napis_4 + napis_5 + napis_6
+
+        self.kwota_txt.delete(0.0, END)
+        self.kwota_txt.insert(0.0, napis)
+        self.format_gr.set(None)
+
+
+
+    def enterTheAmountInWords(self,kwota_s, kwota_C):
+        '''Wpisanie kwoty słownie do pliku 'kwota_slownie.txt'''
+
+        self.checkingOfTheFile() #Sprawdzenie czy istnieje plik 'kwota_slownie.txt'
+        with openFile("kwota_slownie.txt", "a") as plik:
+            kwoty = ('\nKwota podana księgowo:\n',kwota_C,' zł','\nKwota słownie:\n',kwota_s,'\n')
+            plik.writelines(kwoty)
+
+    def checkingOfTheFile(self):
+        '''Sprawdzenie czy istnieje plik kwota_slownie.txt,
+           utworzenie go gdy nie istnieje a gdy istnieje sparwdzenie jego
+           wielkosci - usunięcie początkowych linii gy jest ich ponad 50'''
+        linie = []
+        try:
+            with openFile("kwota_slownie.txt", "r") as lin:  # odczytywanie linia po linii do listy
+                linie = lin.readlines()
+        except (UnicodeDecodeError, FileNotFoundError) :
+            with openFile("kwota_slownie.txt", "w") as lin:
+                lin.close()
+        if len(linie) > 50:
+            del linie[:10]
+        with openFile("kwota_slownie.txt", "w") as lin:  # zapis linii
+            lin.writelines(linie[:])
+
+
+    def main(self):
+        '''Sprawdzenie czy wprowadzona liczba ma prawidłowy format
+           oraz wybrania formatu groszy'''
+        liczba, liczba_P = self.formattingTheEnteredNumber()   #Formatowanie wprowadzonej kwoty do obliczeń
+
         napis = liczba
+
         if napis == 'BŁĄD':
             napis = 'Niewłaściwy format wprowadzonej kwoty!\nWprowadż właściwą kwotę.'
             self.kwota_txt.delete(0.0, END)
@@ -402,48 +441,21 @@ class Apka(Frame):
         else:
             format_gr = self.format_gr.get()
             if format_gr != '1' != '2' != '3':
-                napis_5 = 'Ponieważ nie wybrano formatu groszy przyjęty został format "zero groszy"'
+                napis_5 = 'Ponieważ nie wybrano formatu groszy przyjęty został format "zero groszy"\n'
                 self.format_gr.set('1')
             else:
-                napis_5 = 'AA'
-            kwota_s = zamiana(liczba,format_gr)
-            kwota_C = liczba_F(kwota_)      #format księgowy
-            linie = []
-            try:
-                with openFile("kwota_slownie.txt", "r") as lin:  # odczytywanie linia po linii do listy
-                    linie = lin.readlines()
-            except FileNotFoundError:
-                with openFile("kwota_slownie.txt", "a") as lin:
-                    lin.close()
-            if len(linie) > 50:
-                del linie[:10]
-            with openFile("kwota_slownie.txt", "w") as lin:  # zapis linii
-                lin.writelines(linie[:])
+                napis_5 = ''
 
-            with openFile("kwota_slownie.txt", "a") as plik:
-                kwoty = ('\nKwota podana księgowo:\n',kwota_C,' zł','\nKwota słownie:\n',kwota_s,'\n')
-                plik.writelines(kwoty)
+            kwota_s, kwota_F = self.amountInWords(liczba,format_gr)
+            self.amountInWordsOnTheScreen(kwota_s, liczba_P, kwota_F, napis_5)
+            self.enterTheAmountInWords(kwota_s, kwota_F)    
 
-            first = '0'
-            last = len(liczba_P)
-            self.liczba_P.delete(first,last)
 
-            napis_1 = 'Kwota podana:   '
-            napis_2 = ' zł\t\t\t\t\t\t\t       Kwota w formacie księgowym:   '
-            napis_3 = ' zł\nKwota słownie:   '
-            napis_4 = '\n=====================\n'
-            napis_6 = '\nKwota słownie została zapisana do pliku "kwota_slownie.txt"\n'
-            napis = napis_1 + liczba_P + napis_2 + kwota_C + napis_3 + kwota_s + napis_4 + napis_5 + napis_6
-
-            self.kwota_txt.delete(0.0, END)
-            self.kwota_txt.insert(0.0, napis)
-            self.format_gr.set(None)
 
 #==============================================================================
 
 # część główna
 root = Tk()
 root.title('Zamiana liczby na tekst')
-#root.geometry('550x630')
 app = Apka(root)
 root.mainloop()
