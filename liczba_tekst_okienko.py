@@ -43,7 +43,23 @@ class Apka(Frame):
         super(Apka, self).__init__(master)  
         self.grid()
         self.create_widgets()
-        self.master.geometry('+800+15')
+#        self.master.geometry('+800+15')
+        self.center()      # wyśrodkuj
+
+    def center(self):
+        self.update()
+        # szerokość / wysokość okna
+        wx = self.winfo_width()
+        wy = self.winfo_height()
+        # szerokość wysokość ekranu
+        sx = self.winfo_screenwidth()
+        sy = self.winfo_screenheight()
+        # środek ekranu przesunięty o 
+        x = (sx - wx) // 2 # połowę szerokośi
+        y = (sy - wy) // 2 # połowę wysokości
+
+#        self.master.geometry("{}x{}+{}+{}".format(wx, wy, x, y))
+        self.master.geometry("{}x{}+{}+30".format(wx, wy, x))#, y))
 
 #==============================================================================
 
@@ -68,20 +84,34 @@ class Apka(Frame):
 
         # utwórz etykietę i pole znakowe służące do wpisania liczby
         self.wpisz_lbl = Label(self, font = ('calibri', 11),
-              text = '   Wpisz kwotę:'
-              ).grid(row = 9, column =2,sticky = W)#columnspan = 2
+              text = ' Wpisz kwotę:'
+              ).grid(row = 9, column =1,sticky = W)#columnspan = 2
 
         sv = StringVar()
         self.liczba_P = Entry(self, justify = RIGHT, textvariable = sv)
-        self.liczba_P.grid(row = 9, column = 2, columnspan = 2)#, sticky = W)#
+        self.liczba_P.grid(row = 9, column = 1, columnspan = 2)#, sticky = W)#
         sv.trace('w', lambda nm, idx, mode, var=sv: self.validate_float(var)) #walidacja wprowadzanych danych
 
 #==============================================================================
 
         # utwórz etykietę z pytaniem o wybór formatu groszy
         self.wpisz_2_lbl = Label(self, font = ('calibri', 11),
-              text = "Wybierz format groszy:"
-              ).grid(row = 10, column = 1, columnspan = 3)#, sticky = W) #, rowspan = 1) #, columnspan = 5)  #, sticky = W)
+              text = ' Domyślny format groszy: "zero zero groszy".'
+              ).grid(row = 10, column = 1, columnspan = 3, sticky = W) #, rowspan = 1) #, columnspan = 5)  #, sticky = W)
+
+#==============================================================================
+
+        # utwórz etykietę z pytaniem o wybór formatu groszy
+        self.wpisz_2_lbl = Label(self, font = ('calibri', 11),
+              text = " Inne formaty groszy (wybierz):"
+              ).grid(row = 11, column = 1, sticky = W) #, rowspan = 1) #, columnspan = 5)  #, sticky = W)
+
+#==============================================================================
+
+        # utwórz etykietę z pytaniem o wybór formatu groszy
+#        self.wpisz_2_lbl = Label(self, font = ('calibri', 11),
+#              text = "Wybierz format groszy:"
+#              ).grid(row = 11, column = 1, sticky = W) #, rowspan = 1) #, columnspan = 5)  #, sticky = W)
 
 #==============================================================================
         # utwórz zmienną, która ma reprezentować pojedynczy format groszy
@@ -90,20 +120,20 @@ class Apka(Frame):
 #        self.format_gr.set('1')
 
         # utwórz przycisk opcji do wyboru formatu groszy - tekstowego
-        Radiobutton(self,
-                    text = "zero groszy",
-                    indicatoron = 0,
-                    width = 22,
-                    variable = self.format_gr,
-                    value = "1",
-                    pady = 2
-                    ).grid(row = 11, column = 1)
+#        Radiobutton(self,
+#                    text = "zero groszy",
+#                    indicatoron = 0,
+#                    width = 22,
+#                    variable = self.format_gr,
+#                    value = "1",
+#                    pady = 2
+#                    ).grid(row = 10, column = 1)
 
         # utwórz przycisk opcji do wyboru dramatu
         Radiobutton(self,
                     text = "00 groszy",
                     indicatoron = 0,
-                    width = 22,
+                    width = 19,
                     variable = self.format_gr,
                     value = "2",
                     pady = 2
@@ -113,7 +143,7 @@ class Apka(Frame):
         Radiobutton(self,
                     text = "00/100",
                     indicatoron = 0,
-                    width = 22,
+                    width = 19,
                     variable = self.format_gr,
                     value = "3",
                     pady = 2
@@ -125,7 +155,7 @@ class Apka(Frame):
         self.wykonaj_2 = Button(self,
                                 text = "OK",
                                 font = ('calibri',13, 'underline'),
-                                padx = 105,
+                                padx = 115,
                                 pady = 20,
                                 command = self.main
                                 )
@@ -152,12 +182,12 @@ class Apka(Frame):
               text = "  ", justify='left'
               ).grid(row = 18, column = 1, columnspan = 5)
 
-        # utwórz etykietę z pustą linią '2' '' - prawa rfamka
+        # utwórz etykietę z pustą linią '2' '' - środek
         self.linia = Label(self, font = ('Courier New', 5),
-              text = "    "
+              text = "   "
               ).grid(row = 32, column = 4)
 
-        # utwórz etykietę z pustą linią '2' '' - prawa rfamka
+        # utwórz etykietę z pustą linią '2' '' - prawa ramka
         self.linia = Label(self, font = ('Courier New', 5),
               text = "     "
               ).grid(row = 32, column = 6)
@@ -245,43 +275,25 @@ class Apka(Frame):
         #zamiana '.' na '0'
         przecinek = liczba[-3]
         liczba = liczba.replace(przecinek,'0')
-   
-        #Sprawdzenie długości części całkowitej liczby
         liczba_cc = liczba[:-3]    #część całkowita liczby
-        #utworzenie liczby o długości 15 znaków
+
         #dopełnienie liczby krótszej niż 15 znaków znakami "0" - po lewej stronie
         liczba_c = ('0' * (15 - len(liczba))) + liczba   #liczba cała 15 znaków
-        #=====================================================
-        #Tworzenie [list] z częściami trójkowymi liczby
-        #trojki = [mld, mln, tys, setk, gr] #tablica 3-znakowych sekwencji liczb
-        #wstawienie liczby - całej 15-znakowej 'liczba_c'
-        # - podzielonej na 3-znakowe sekwencje
-        # - do tablicy 'trojki'
 
+        #[trojki] = [mld, mln, tys, setk, gr] #tablica 3-znakowych sekwencji liczb
         trojki = [] #tablica 3-znakowych sekwencji liczb
-
         trojki = [(liczba_c[j:j+3]) for (j) in range(0,15,3)]
 
-        #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-        #trojki_s - zamiana tablicy 'trojki' na string
-        #w celu zamiany wpowadzonej liczby na format ###.###.###.##0,00
-
-        trojki_s = ''
-        for s in range(5):
-            trojki_s += trojki[s]+ '.'
-        kwota_F = self.conversionToTheAccountingFormat(trojki_s)
-
-        #=============================================
         #tablica do zapisu słów z przekształcenia poszczególnych cyfr wpisanej liczby
         slowa = []
-
+        
         #PĘTLA GŁÓWNA - cyfry na słowa
+        #słowa dla cyfr - #słowo 'jeden','dziesięć','sto',
 
         n = 0
         for k in range(5):
             slowa_0 = setki [int(trojki[k][0])]
             slowa.insert(n, slowa_0)
-
             if int(trojki [k][1:3]) >= 11 and int(trojki[k][1:3]) <= 19:
                 slowa_1 = jednostki_1[int(trojki [k][2])]
                 slowa_2 = ''
@@ -291,7 +303,8 @@ class Apka(Frame):
             slowa.insert(n+1, slowa_1)
             slowa.insert(n+2, slowa_2)
 
-        # określenie sekwencji - słowo 'miliard/y/ów','milion/y/ów','tysiąc/e/ęcy','złoty/e/ych','grosz/e/y'
+        #słowa dla trojek -'miliard/y/ów','milion/y/ów','tysiąc/e/ęcy','złoty/e/ych','grosz/e/y'
+
             if int(trojki[k]) == 0:
                 slowa_s = nazwy_j[k][0]
             elif int(trojki[k]) == 1:
@@ -302,12 +315,10 @@ class Apka(Frame):
                 slowa_s = nazwy_j[k][2]
             else:
                 slowa_s = nazwy_j[k][3]
-
             slowa.insert(n+3, slowa_s)
             n += 4
 
         #CAŁA LICZBA 0,00 - (część całkowita) - słowo: 'zero'
-
         if int(liczba_cc) == 0:
             slowa [12] = ''
             slowa [13] = ''
@@ -316,21 +327,17 @@ class Apka(Frame):
         
         #GROSZE - ,00 - słowo zero ({16} = ',')
         slowa [16] = ''
-
         if int(trojki[4]) == 0:
             slowa [17] = ''
             slowa [18] = zero
-
         if format_gr == '2':    #format '00 groszy'
             slowa [17] = ''
             slowa [18] = liczba[-2:]
-        
         if format_gr == '3':    #format '00/100'
             slowa [17] = ''
             slowa [18] = ''
             slowa [19] = liczba[-2:]+'/100'
 
-        #===========================================================
         #kwota słownie po usunięciu zbędnych znaków
         kwota_s = ''
         for m in range(20):
@@ -341,15 +348,19 @@ class Apka(Frame):
                 kwota_s += ''
             m += 1
 
+        kwota_F = self.conversionToTheAccountingFormat(trojki)  #zamiana wpowadzonej liczby
+                                                                #na format ###.###.###.##0,00
         return kwota_s, kwota_F
         #KONIEC zamiany 
     #==========================================
 
-
-    def conversionToTheAccountingFormat(self,trojki_s):
+    def conversionToTheAccountingFormat(self,trojki):
         '''Zamiana wpowadzonej liczby na format księgowy ###.###.###.##0,00'''
       
-        kwota_F = trojki_s
+        kwota_F = ''
+        for s in range(5):
+            kwota_F += trojki[s]+ '.'
+      
         kwota_F = kwota_F[:19]
 
         if kwota_F[:17] == '000.000.000.000.0':
@@ -377,26 +388,23 @@ class Apka(Frame):
             kwota_F = u
 
         return kwota_F
-   
 
-    def amountInWordsOnTheScreen(self, kwota_s, liczba_P, kwota_F, napis_5):
+    def amountInWordsOnTheScreen(self, kwota_s, liczba_P, kwota_F):
         '''Wpisanie kwoty słownie na ekranie'''
         first = '0'
-        last = 16    #len(liczba_P)
+        last = len(liczba_P)
         self.liczba_P.delete(first,last)
 
         napis_1 = 'Kwota podana:   '
         napis_2 = ' zł\t\t\t\t\t\t\t       Kwota w formacie księgowym:   '
         napis_3 = ' zł\nKwota słownie:   '
         napis_4 = '\n=====================\n'
-        napis_6 = 'Kwota słownie została zapisana do pliku "kwota_slownie.txt"\n'
-        napis = napis_1 + liczba_P + napis_2 + kwota_F + napis_3 + kwota_s + napis_4 + napis_5 + napis_6
+        napis_5 = 'Kwota słownie została zapisana do pliku "kwota_slownie.txt"\n'
+        napis = napis_1 + liczba_P + napis_2 + kwota_F + napis_3 + kwota_s + napis_4 + napis_5
 
         self.kwota_txt.delete(0.0, END)
         self.kwota_txt.insert(0.0, napis)
         self.format_gr.set(None)
-
-
 
     def enterTheAmountInWords(self,kwota_s, kwota_C):
         '''Wpisanie kwoty słownie do pliku 'kwota_slownie.txt'''
@@ -410,6 +418,7 @@ class Apka(Frame):
         '''Sprawdzenie czy istnieje plik kwota_slownie.txt,
            utworzenie go gdy nie istnieje a gdy istnieje sparwdzenie jego
            wielkosci - usunięcie początkowych linii gy jest ich ponad 50'''
+
         linie = []
         try:
             with openFile("kwota_slownie.txt", "r") as lin:  # odczytywanie linia po linii do listy
@@ -422,14 +431,11 @@ class Apka(Frame):
         with openFile("kwota_slownie.txt", "w") as lin:  # zapis linii
             lin.writelines(linie[:])
 
-
     def main(self):
-        '''Sprawdzenie czy wprowadzona liczba ma prawidłowy format
-           oraz wybrania formatu groszy'''
+
         liczba, liczba_P = self.formattingTheEnteredNumber()   #Formatowanie wprowadzonej kwoty do obliczeń
 
         napis = liczba
-
         if napis == 'BŁĄD':
             napis = 'Niewłaściwy format wprowadzonej kwoty!\nWprowadż właściwą kwotę.'
             self.kwota_txt.delete(0.0, END)
@@ -440,14 +446,12 @@ class Apka(Frame):
             self.format_gr.set(None)
         else:
             format_gr = self.format_gr.get()
-            if format_gr != '1' != '2' != '3':
-                napis_5 = 'Ponieważ nie wybrano formatu groszy przyjęty został format "zero groszy"\n'
-                self.format_gr.set('1')
-            else:
-                napis_5 = ''
+            first = '0'
+            last = len(self.liczba_P.get())
+            self.liczba_P.delete(first,last)
 
             kwota_s, kwota_F = self.amountInWords(liczba,format_gr)
-            self.amountInWordsOnTheScreen(kwota_s, liczba_P, kwota_F, napis_5)
+            self.amountInWordsOnTheScreen(kwota_s, liczba_P, kwota_F)#, napis_5)
             self.enterTheAmountInWords(kwota_s, kwota_F)    
 
 
@@ -456,6 +460,6 @@ class Apka(Frame):
 
 # część główna
 root = Tk()
-root.title('Zamiana liczby na tekst')
+root.title('Zamiana kwoty na tekst')
 app = Apka(root)
 root.mainloop()
