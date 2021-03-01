@@ -5,23 +5,6 @@
 from tkinter import *
 from src.libs import openFile
 
-#def amountInWordsOnTheScreen(kwota_s, liczba_P, kwota_F):
-#    '''Wpisanie kwoty słownie na ekranie'''
-#    first = '0'
-#    last = len(liczba_P)
-#    liczba_P.delete(first,last)
-
-#    napis_1 = 'Kwota podana:   '
-#    napis_2 = ' zł\t\t\t\t\t\t\t       Kwota w formacie księgowym:   '
-#    napis_3 = ' zł\nKwota słownie:   '
-#    napis_4 = '\n=====================\n'
-#    napis_5 = 'Kwota słownie została zapisana do pliku "kwota_slownie.txt"\n'
-#    napis = napis_1 + liczba_P + napis_2 + kwota_F + napis_3 + kwota_s + napis_4 + napis_5
-
-#    self.kwota_txt.delete(0.0, END)
-#    self.kwota_txt.insert(0.0, napis)
-#    self.format_gr.set(None)
-
 def checkingOfTheFile():
     '''Sprawdzenie czy istnieje plik kwota_slownie.txt,
        utworzenie go gdy nie istnieje a gdy istnieje sparwdzenie jego
