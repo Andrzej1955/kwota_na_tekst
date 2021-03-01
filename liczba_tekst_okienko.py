@@ -4,7 +4,7 @@
 from tkinter import *
 from src.libs import openFile
 import ltconversion as ltcon
-import ltwrite as ltw
+from ltwrite import *
 
 
 
@@ -373,29 +373,10 @@ class Apka(Frame):
                 kwota_s += ''
             m += 1
 
-        kwota_F = ltcon.conversionToTheAccountingFormat(trojki)  #zamiana wpowadzonej liczby
+        kwota_F = ltcon.conversionToTheAccountingFormat(self,trojki)  #zamiana wpowadzonej liczby
                                                                 #na format ###.###.###.##0,00
         return kwota_s, kwota_F
         #KONIEC zamiany 
-    #==========================================
-#==============================================================================
-
-    def amountInWordsOnTheScreen(self, kwota_s, liczba_P, kwota_F):
-        '''Wpisanie kwoty słownie na ekranie'''
-        first = '0'
-        last = len(liczba_P)
-        self.liczba_P.delete(first,last)
-
-        napis_1 = 'Kwota podana:   '
-        napis_2 = ' zł\t\t\t\t\t\t\t       Kwota w formacie księgowym:   '
-        napis_3 = ' zł\nKwota słownie:   '
-        napis_4 = '\n=====================\n'
-        napis_5 = 'Kwota słownie została zapisana do pliku "kwota_slownie.txt"\n'
-        napis = napis_1 + liczba_P + napis_2 + kwota_F + napis_3 + kwota_s + napis_4 + napis_5
-
-        self.kwota_txt.delete(0.0, END)
-        self.kwota_txt.insert(0.0, napis)
-        self.format_gr.set(None)
 
 #==============================================================================
 
@@ -419,8 +400,8 @@ class Apka(Frame):
             self.liczba_P.delete(first,last)
 
             kwota_s, kwota_F = self.amountInWords(liczba,format_gr)
-            self.amountInWordsOnTheScreen(kwota_s, liczba_P, kwota_F)#, napis_5)
-            ltw.enterTheAmountInWords(kwota_s, kwota_F)    
+            amountInWordsOnTheScreen(self,kwota_s, liczba_P, kwota_F)#, napis_5)
+            enterTheAmountInWords(self,kwota_s, kwota_F)    
 
 
 

@@ -3,7 +3,7 @@
 # Konwersja liczby na format księgowy
 
 
-def conversionToTheAccountingFormat(trojki):
+def conversionToTheAccountingFormat(self,trojki):
     '''Zamiana wpowadzonej liczby na format księgowy ###.###.###.##0,00'''
       
     kwota_F = ''
