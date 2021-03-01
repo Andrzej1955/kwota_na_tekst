@@ -1,8 +1,13 @@
-# liczba_tekst_okieno
-# Tworzy okno do wpisanoia i uzyskania ntejkstu kwoty
+# liczba_tekst_okienko
+# Tworzy okno do wpisania kwoty cyfrowo i uzyskania tekstu tej kwoty
 
 from tkinter import *
 from src.libs import openFile
+import ltconversion as ltcon
+import ltwrite as ltw
+
+
+
 #==============================================================================
 #POCZĄTEK - ZAMIANA
 
@@ -48,19 +53,32 @@ class Apka(Frame):
 
     def center(self):
         self.update()
+
         # szerokość / wysokość okna
         wx = self.winfo_width()
         wy = self.winfo_height()
+#        print('wx: ',wx)
+#        print('wy: ',wy)
+
         # szerokość wysokość ekranu
         sx = self.winfo_screenwidth()
         sy = self.winfo_screenheight()
+#        print('sx: ',sx)
+#        print('sy: ',sy)
+
         # środek ekranu przesunięty o 
         x = (sx - wx) // 2 # połowę szerokośi
         y = (sy - wy) // 2 # połowę wysokości
+#        print('x: ',x)
+#        print('y: ',y)
 
 #        self.master.geometry("{}x{}+{}+{}".format(wx, wy, x, y))
-        self.master.geometry("{}x{}+{}+30".format(wx, wy, x))#, y))
+#        self.master.geometry("{}x{}+{}+30".format(wx, wy, x))#, y))
+        self.master.geometry("+{}+30".format(x))#, y))
 
+
+
+        
 #==============================================================================
 
     def create_widgets(self):
@@ -192,6 +210,11 @@ class Apka(Frame):
               text = "     "
               ).grid(row = 32, column = 6)
 
+
+        global kwota_txt
+
+
+
        # utwórz widżet Text do wyświetlenia komunikatu 'tekst kwoty' lub 'wpisz kwotę'
         self.kwota_txt = Text(self,  font = ('Calibri', 11),width = 110, height = 6, wrap = WORD, padx = 10, pady = 10)
         self.kwota_txt.grid(row = 29, column = 1 ,columnspan = 5)#, sticky = E)
@@ -234,6 +257,7 @@ class Apka(Frame):
         except:
             var.set(validate_old_value)    
 
+#==============================================================================
 
     def formattingTheEnteredNumber(self):
         '''Formatowanie wprowadzonej kwoty do obliczeń na format 0.00'''
@@ -269,6 +293,7 @@ class Apka(Frame):
 
         return liczba, liczba_P
 
+#==============================================================================
 
     def amountInWords(self,liczba,format_gr):
         '''ZAMIANA CYFR NA SŁOWA'''
@@ -348,46 +373,12 @@ class Apka(Frame):
                 kwota_s += ''
             m += 1
 
-        kwota_F = self.conversionToTheAccountingFormat(trojki)  #zamiana wpowadzonej liczby
+        kwota_F = ltcon.conversionToTheAccountingFormat(trojki)  #zamiana wpowadzonej liczby
                                                                 #na format ###.###.###.##0,00
         return kwota_s, kwota_F
         #KONIEC zamiany 
     #==========================================
-
-    def conversionToTheAccountingFormat(self,trojki):
-        '''Zamiana wpowadzonej liczby na format księgowy ###.###.###.##0,00'''
-      
-        kwota_F = ''
-        for s in range(5):
-            kwota_F += trojki[s]+ '.'
-      
-        kwota_F = kwota_F[:19]
-
-        if kwota_F[:17] == '000.000.000.000.0':
-            kwota_F = '0.' + kwota_F[17:19]
-        else:
-            kwota_F1 = []
-            kwota_F1 = [(kwota_F[i]) for i in range(19)]
-
-            kwota_F = kwota_F1[:]
-            m = 0
-            while kwota_F[m] == '0' or kwota_F[m] == '.':
-                m = 0
-                del kwota_F[m]
-            kwota_F = kwota_F[m:19]
-
-            m=0
-            u = ''
-            d = len(kwota_F)
-            while kwota_F[m]:
-                u += kwota_F[m]
-                m += 1
-                if m == d:
-                    break
-            u = u[:-4]+','+u[-2:]
-            kwota_F = u
-
-        return kwota_F
+#==============================================================================
 
     def amountInWordsOnTheScreen(self, kwota_s, liczba_P, kwota_F):
         '''Wpisanie kwoty słownie na ekranie'''
@@ -406,30 +397,7 @@ class Apka(Frame):
         self.kwota_txt.insert(0.0, napis)
         self.format_gr.set(None)
 
-    def enterTheAmountInWords(self,kwota_s, kwota_C):
-        '''Wpisanie kwoty słownie do pliku 'kwota_slownie.txt'''
-
-        self.checkingOfTheFile() #Sprawdzenie czy istnieje plik 'kwota_slownie.txt'
-        with openFile("kwota_slownie.txt", "a") as plik:
-            kwoty = ('\nKwota podana księgowo:\n',kwota_C,' zł','\nKwota słownie:\n',kwota_s,'\n')
-            plik.writelines(kwoty)
-
-    def checkingOfTheFile(self):
-        '''Sprawdzenie czy istnieje plik kwota_slownie.txt,
-           utworzenie go gdy nie istnieje a gdy istnieje sparwdzenie jego
-           wielkosci - usunięcie początkowych linii gy jest ich ponad 50'''
-
-        linie = []
-        try:
-            with openFile("kwota_slownie.txt", "r") as lin:  # odczytywanie linia po linii do listy
-                linie = lin.readlines()
-        except (UnicodeDecodeError, FileNotFoundError) :
-            with openFile("kwota_slownie.txt", "w") as lin:
-                lin.close()
-        if len(linie) > 50:
-            del linie[:10]
-        with openFile("kwota_slownie.txt", "w") as lin:  # zapis linii
-            lin.writelines(linie[:])
+#==============================================================================
 
     def main(self):
 
@@ -452,7 +420,7 @@ class Apka(Frame):
 
             kwota_s, kwota_F = self.amountInWords(liczba,format_gr)
             self.amountInWordsOnTheScreen(kwota_s, liczba_P, kwota_F)#, napis_5)
-            self.enterTheAmountInWords(kwota_s, kwota_F)    
+            ltw.enterTheAmountInWords(kwota_s, kwota_F)    
 
 
 
@@ -461,5 +429,6 @@ class Apka(Frame):
 # część główna
 root = Tk()
 root.title('Zamiana kwoty na tekst')
+#root.geometry("300x150")
 app = Apka(root)
 root.mainloop()
